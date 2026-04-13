@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskMaster Pro | Ultra Edition</title>
+    <title>TaskMaster Ultra | Workspace</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --primary: #6366f1;
-            --primary-hover: #4f46e5;
             --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
             --glass: rgba(255, 255, 255, 0.05);
             --glass-border: rgba(255, 255, 255, 0.1);
@@ -26,58 +25,78 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: var(--bg-gradient);
             min-height: 100vh;
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* TELA DE TRANSIÇÃO (LOGIN) */
+        #login-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-gradient);
+            z-index: 1000;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: var(--text-main);
-            padding: 20px;
+            transition: opacity 0.8s ease, visibility 0.8s;
+        }
+
+        .login-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 30px;
+            border: 1px solid var(--glass-border);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            animation: zoomIn 0.5s ease;
+        }
+
+        .login-card input {
+            width: 100%;
+            padding: 15px;
+            margin: 20px 0;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        /* LAYOUT PRINCIPAL */
+        .main-content {
+            display: none; /* Escondido até o login */
+            padding: 40px 20px 100px 20px;
+            min-height: 100vh;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
         }
 
         .app-card {
             background: var(--glass);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
             width: 100%;
-            max-width: 450px;
-            border-radius: 24px;
+            max-width: 550px;
+            border-radius: 28px;
             padding: 30px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
         }
 
-        h1 {
-            font-weight: 800;
-            font-size: 1.8rem;
-            margin-bottom: 25px;
-            text-align: center;
-            background: linear-gradient(to right, #818cf8, #c084fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        h1 { font-weight: 800; margin-bottom: 25px; text-align: center; color: var(--primary); }
 
-        /* Área de Input */
-        .input-section {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 30px;
-        }
+        .input-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 30px; }
 
-        input, select, button#add-btn {
-            height: 50px;
+        input, select, button {
+            height: 48px;
             border-radius: 12px;
             border: 1px solid var(--glass-border);
             background: rgba(255, 255, 255, 0.07);
             color: white;
             padding: 0 15px;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: rgba(255, 255, 255, 0.12);
         }
 
         button#add-btn {
@@ -85,183 +104,168 @@
             border: none;
             font-weight: 700;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            transition: 0.3s;
         }
 
-        button#add-btn:hover {
-            background: var(--primary-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
-        }
+        button#add-btn:hover { background: #4f46e5; transform: scale(1.02); }
 
-        /* Lista de Tarefas */
-        #task-list { list-style: none; }
-
+        /* LISTA E ITENS */
         .task-item {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 14px;
-            padding: 15px;
-            margin-bottom: 12px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            border-left: 4px solid #ccc;
-            animation: slideIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-            transition: all 0.3s ease;
+            gap: 15px;
+            border-left: 5px solid #555;
+            animation: slideUp 0.4s ease forwards;
         }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .task-item:hover {
-            background: rgba(255, 255, 255, 0.08);
-            transform: scale(1.02);
-        }
-
-        /* Cores de Prioridade */
+        .task-content { flex: 1; }
+        .task-deadline { font-size: 0.75rem; color: #94a3b8; display: block; margin-top: 4px; }
+        
         .p-high { border-left-color: var(--high); }
         .p-medium { border-left-color: var(--medium); }
         .p-low { border-left-color: var(--low); }
 
-        .task-text { flex: 1; margin: 0 15px; font-weight: 500; }
-        
-        .completed .task-text {
-            text-decoration: line-through;
-            opacity: 0.4;
-        }
-
-        .actions { display: flex; gap: 10px; }
-
-        .btn-icon {
-            background: none;
-            border: none;
-            color: #94a3b8;
-            cursor: pointer;
-            font-size: 1.1rem;
-            transition: color 0.2s, transform 0.2s;
-        }
-
-        .btn-icon:hover { transform: scale(1.2); }
-        .btn-check:hover { color: var(--low); }
-        .btn-trash:hover { color: var(--high); }
-
-        /* Mensagem de Conclusão */
-        #toast {
+        /* FOOTER (DATA, HORA E CRONÔMETRO) */
+        .status-footer {
             position: fixed;
             bottom: 20px;
-            right: 20px;
-            background: var(--low);
-            color: #000;
-            padding: 12px 24px;
+            left: 20px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
             border-radius: 50px;
-            font-weight: 700;
-            display: none;
-            animation: pop 0.4s ease forwards;
+            border: 1px solid var(--glass-border);
+            font-size: 0.85rem;
+            display: flex;
+            gap: 20px;
+            color: #cbd5e1;
+            z-index: 900;
         }
 
-        @keyframes pop {
-            0% { transform: scale(0); }
-            80% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
+        .status-footer i { color: var(--primary); margin-right: 5px; }
+
+        @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .completed { opacity: 0.4; text-decoration: line-through; }
     </style>
 </head>
 <body>
 
-    <div class="app-card">
-        <h1><i class="fa-solid fa-list-check"></i> TaskMaster Pro</h1>
-        
-        <div class="input-section">
-            <input type="text" id="task-input" placeholder="Nova tarefa..." maxlength="40">
-            <select id="priority-select">
-                <option value="low">🌱 Prioridade Baixa</option>
-                <option value="medium">⚡ Prioridade Média</option>
-                <option value="high">🔥 Prioridade Alta</option>
-            </select>
-            <button id="add-btn">
-                <i class="fa-solid fa-plus"></i> Adicionar
-            </button>
+    <div id="login-overlay">
+        <div class="login-card">
+            <h2>Bem-vindo</h2>
+            <p>Identifique-se para acessar suas tarefas</p>
+            <input type="text" id="user-name" placeholder="Seu nome aqui..." autocomplete="off">
+            <button id="add-btn" onclick="startApp()" style="width:100%">Acessar Sistema</button>
         </div>
-
-        <ul id="task-list"></ul>
     </div>
 
-    <div id="toast">✅ Tarefa Concluída!</div>
+    <div class="main-content" id="main-content">
+        <div class="app-card">
+            <h1 id="welcome-msg">Minhas Tarefas</h1>
+            
+            <div class="input-group">
+                <input type="text" id="task-input" placeholder="O que faremos hoje?">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <select id="priority-select">
+                        <option value="low">Baixa</option>
+                        <option value="medium">Média</option>
+                        <option value="high">Alta</option>
+                    </select>
+                    <input type="datetime-local" id="task-deadline" title="Prazo de entrega">
+                </div>
+                <button id="add-btn" onclick="addTask()"><i class="fa-solid fa-plus"></i> Criar Tarefa</button>
+            </div>
+
+            <ul id="task-list" style="list-style:none"></ul>
+        </div>
+    </div>
+
+    <div class="status-footer" id="status-footer" style="display:none">
+        <div><i class="fa-regular fa-calendar"></i> <span id="current-date">--/--/-- --:--</span></div>
+        <div><i class="fa-regular fa-clock"></i> <span id="session-timer">00:00</span></div>
+    </div>
 
     <script>
-        const taskInput = document.getElementById('task-input');
-        const prioritySelect = document.getElementById('priority-select');
-        const addBtn = document.getElementById('add-btn');
-        const taskList = document.getElementById('task-list');
-        const toast = document.getElementById('toast');
-
-        // Efeitos Sonoros (Sintetizados via Web Audio API para não precisar de arquivos mp3)
-        const playSound = (freq, type) => {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = type;
-            osc.frequency.setValueAtTime(freq, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start();
-            osc.stop(ctx.currentTime + 0.3);
-        };
-
-        function showToast() {
-            toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 2000);
+        // Lógica de Login e Transição
+        function startApp() {
+            const name = document.getElementById('user-name').value;
+            if(!name) return alert("Por favor, digite seu nome.");
+            
+            document.getElementById('login-overlay').style.opacity = '0';
+            document.getElementById('login-overlay').style.visibility = 'hidden';
+            document.getElementById('main-content').style.display = 'flex';
+            document.getElementById('status-footer').style.display = 'flex';
+            document.getElementById('welcome-msg').innerText = `Workplace de ${name}`;
+            playSound(600, 'sine');
+            startSessionTimer();
         }
 
-        function addTask() {
-            const val = taskInput.value.trim();
-            const priority = prioritySelect.value;
+        // Relógio e Cronômetro
+        function updateDateTime() {
+            const now = new Date();
+            document.getElementById('current-date').innerText = now.toLocaleString('pt-BR');
+        }
+        setInterval(updateDateTime, 1000);
 
-            if (!val) {
-                playSound(150, 'square'); // Som de erro
-                return;
-            }
+        let seconds = 0;
+        function startSessionTimer() {
+            setInterval(() => {
+                seconds++;
+                const min = Math.floor(seconds / 60).toString().padStart(2, '0');
+                const sec = (seconds % 60).toString().padStart(2, '0');
+                document.getElementById('session-timer').innerText = `${min}:${sec}`;
+            }, 1000);
+        }
+
+        // Funções de Áudio (Sintetizado)
+        function playSound(f, t) {
+            const ctx = new AudioContext();
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
+            o.type = t; o.frequency.value = f;
+            g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+            o.connect(g); g.connect(ctx.destination);
+            o.start(); o.stop(ctx.currentTime + 0.5);
+        }
+
+        // Gerenciamento de Tarefas
+        function addTask() {
+            const task = document.getElementById('task-input').value;
+            const priority = document.getElementById('priority-select').value;
+            const deadline = document.getElementById('task-deadline').value;
+
+            if(!task) return playSound(100, 'sawtooth');
 
             const li = document.createElement('li');
             li.className = `task-item p-${priority}`;
+            
+            // Formatação de Prazo
+            const deadlineText = deadline ? `Prazo: ${new Date(deadline).toLocaleString('pt-BR')}` : "Sem prazo definido";
+
             li.innerHTML = `
-                <span class="task-text">${val}</span>
-                <div class="actions">
-                    <button class="btn-icon btn-check"><i class="fa-solid fa-circle-check"></i></button>
-                    <button class="btn-icon btn-trash"><i class="fa-solid fa-trash-can"></i></button>
+                <div class="task-content">
+                    <strong>${task}</strong>
+                    <span class="task-deadline">${deadlineText}</span>
                 </div>
+                <button class="btn-icon" onclick="completeTask(this)" style="color:var(--low); background:none; border:none; cursor:pointer; font-size:1.4rem"><i class="fa-solid fa-check-circle"></i></button>
+                <button class="btn-icon" onclick="this.parentElement.remove()" style="color:var(--high); background:none; border:none; cursor:pointer; font-size:1.4rem"><i class="fa-solid fa-trash"></i></button>
             `;
 
-            // Botão Concluir
-            li.querySelector('.btn-check').onclick = () => {
-                li.classList.toggle('completed');
-                if(li.classList.contains('completed')) {
-                    playSound(800, 'sine'); // Som de sucesso
-                    showToast();
-                }
-            };
-
-            // Botão Excluir
-            li.querySelector('.btn-trash').onclick = () => {
-                li.style.transform = "translateX(50px)";
-                li.style.opacity = "0";
-                setTimeout(() => li.remove(), 300);
-                playSound(200, 'sawtooth'); // Som de deletar
-            };
-
-            taskList.prepend(li); // Adiciona no topo
-            taskInput.value = '';
-            playSound(500, 'sine'); // Som de adição
+            document.getElementById('task-list').prepend(li);
+            document.getElementById('task-input').value = '';
+            playSound(500, 'sine');
         }
 
-        addBtn.onclick = addTask;
-        taskInput.onkeypress = (e) => { if(e.key === 'Enter') addTask() };
+        function completeTask(btn) {
+            btn.parentElement.classList.toggle('completed');
+            playSound(800, 'sine');
+        }
     </script>
 </body>
 </html>
