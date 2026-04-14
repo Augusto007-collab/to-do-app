@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskMaster Ultra | Workspace</title>
+    <title>TaskMaster Ultra | High Visibility</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --primary: #6366f1;
-            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-            --glass: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --bg-gradient: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+            --glass-dark: rgba(15, 23, 42, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.2);
             --high: #ff4d4d;
-            --medium: #ffaa00;
-            --low: #00e676;
-            --text-main: #f8fafc;
+            --medium: #fbbf24;
+            --low: #22c55e;
+            --text-main: #ffffff;
+            --input-bg: #1e293b; /* Fundo sólido para garantir leitura */
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -26,10 +27,12 @@
             background: var(--bg-gradient);
             min-height: 100vh;
             color: var(--text-main);
-            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        /* TELA DE TRANSIÇÃO (LOGIN) */
+        /* TELA DE LOGIN */
         #login-overlay {
             position: fixed;
             inset: 0;
@@ -38,11 +41,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: opacity 0.8s ease, visibility 0.8s;
         }
 
         .login-card {
-            background: var(--glass);
+            background: var(--glass-dark);
             backdrop-filter: blur(20px);
             padding: 40px;
             border-radius: 30px;
@@ -50,221 +52,201 @@
             text-align: center;
             width: 90%;
             max-width: 400px;
-            animation: zoomIn 0.5s ease;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        .login-card input {
+        /* INPUTS E SELETORES - CORREÇÃO DE VISIBILIDADE */
+        .input-group input, .input-group select {
             width: 100%;
-            padding: 15px;
-            margin: 20px 0;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid var(--glass-border);
+            height: 54px;
             border-radius: 12px;
-            color: white;
+            border: 2px solid var(--glass-border);
+            background: var(--input-bg); /* Fundo escuro sólido */
+            color: #ffffff; /* Texto branco puro */
+            padding: 0 15px;
             font-size: 1rem;
-            text-align: center;
+            font-weight: 600;
+            margin-bottom: 10px;
+            outline: none;
+            transition: border-color 0.3s;
         }
 
-        /* LAYOUT PRINCIPAL */
-        .main-content {
-            display: none; /* Escondido até o login */
-            padding: 40px 20px 100px 20px;
-            min-height: 100vh;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
+        /* Estilo específico para as opções dentro do Select */
+        select option {
+            background-color: #1e293b; /* Fundo sólido para as opções */
+            color: white;
+            padding: 10px;
         }
 
+        input:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+        }
+
+        /* APP CARD */
         .app-card {
-            background: var(--glass);
+            background: var(--glass-dark);
             backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
             width: 100%;
             max-width: 550px;
             border-radius: 28px;
             padding: 30px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+            display: none; /* Só aparece após login */
+            animation: fadeIn 0.5s ease;
         }
 
         h1 { font-weight: 800; margin-bottom: 25px; text-align: center; color: var(--primary); }
 
-        .input-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 30px; }
-
-        input, select, button {
-            height: 48px;
-            border-radius: 12px;
-            border: 1px solid var(--glass-border);
-            background: rgba(255, 255, 255, 0.07);
-            color: white;
-            padding: 0 15px;
-        }
-
         button#add-btn {
+            width: 100%;
+            height: 54px;
             background: var(--primary);
+            color: white;
             border: none;
-            font-weight: 700;
+            border-radius: 12px;
+            font-weight: 800;
             cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             transition: 0.3s;
         }
 
-        button#add-btn:hover { background: #4f46e5; transform: scale(1.02); }
+        button#add-btn:hover { background: #4f46e5; transform: translateY(-2px); }
 
-        /* LISTA E ITENS */
+        /* LISTA DE TAREFAS */
         .task-item {
-            background: rgba(255,255,255,0.03);
+            background: rgba(30, 41, 59, 0.7);
             border-radius: 16px;
             padding: 18px;
             margin-bottom: 15px;
             display: flex;
             align-items: center;
-            gap: 15px;
-            border-left: 5px solid #555;
-            animation: slideUp 0.4s ease forwards;
+            border-left: 6px solid #444;
+            transition: 0.3s;
         }
 
-        .task-content { flex: 1; }
-        .task-deadline { font-size: 0.75rem; color: #94a3b8; display: block; margin-top: 4px; }
-        
-        .p-high { border-left-color: var(--high); }
-        .p-medium { border-left-color: var(--medium); }
-        .p-low { border-left-color: var(--low); }
+        .p-high { border-left-color: var(--high); background: rgba(255, 77, 77, 0.1); }
+        .p-medium { border-left-color: var(--medium); background: rgba(251, 191, 36, 0.1); }
+        .p-low { border-left-color: var(--low); background: rgba(34, 197, 94, 0.1); }
 
-        /* FOOTER (DATA, HORA E CRONÔMETRO) */
+        .task-text { flex: 1; font-weight: 600; margin-left: 10px; }
+        .deadline-badge { font-size: 0.75rem; color: #94a3b8; font-weight: 400; }
+
+        /* FOOTER STATUS */
         .status-footer {
             position: fixed;
             bottom: 20px;
             left: 20px;
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            padding: 10px 20px;
+            background: #1e293b;
+            padding: 12px 24px;
             border-radius: 50px;
             border: 1px solid var(--glass-border);
-            font-size: 0.85rem;
-            display: flex;
+            display: none;
             gap: 20px;
-            color: #cbd5e1;
-            z-index: 900;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .status-footer i { color: var(--primary); margin-right: 5px; }
-
-        @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        .completed { opacity: 0.4; text-decoration: line-through; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
 <body>
 
     <div id="login-overlay">
         <div class="login-card">
-            <h2>Bem-vindo</h2>
-            <p>Identifique-se para acessar suas tarefas</p>
-            <input type="text" id="user-name" placeholder="Seu nome aqui..." autocomplete="off">
-            <button id="add-btn" onclick="startApp()" style="width:100%">Acessar Sistema</button>
+            <h1>Acesso</h1>
+            <input type="text" id="user-name" placeholder="Digite seu nome..." style="background:#1e293b; color:white; border:2px solid #334155; padding:15px; border-radius:12px; width:100%; margin-bottom:15px;">
+            <button id="add-btn" onclick="startApp()">Entrar no Sistema</button>
         </div>
     </div>
 
-    <div class="main-content" id="main-content">
-        <div class="app-card">
-            <h1 id="welcome-msg">Minhas Tarefas</h1>
+    <div class="app-card" id="app-card">
+        <h1 id="welcome-title">TaskMaster</h1>
+        
+        <div class="input-group">
+            <input type="text" id="task-input" placeholder="O que precisa ser feito?">
             
-            <div class="input-group">
-                <input type="text" id="task-input" placeholder="O que faremos hoje?">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <select id="priority-select">
-                        <option value="low">Baixa</option>
-                        <option value="medium">Média</option>
-                        <option value="high">Alta</option>
-                    </select>
-                    <input type="datetime-local" id="task-deadline" title="Prazo de entrega">
-                </div>
-                <button id="add-btn" onclick="addTask()"><i class="fa-solid fa-plus"></i> Criar Tarefa</button>
-            </div>
+            <label style="font-size: 0.8rem; color: var(--primary); font-weight: 800; margin-bottom: 5px; display: block;">DEFINIR IMPORTÂNCIA:</label>
+            <select id="priority-select">
+                <option value="low" style="color: #22c55e;">🟢 PRIORIDADE BAIXA</option>
+                <option value="medium" style="color: #fbbf24;">🟡 PRIORIDADE MÉDIA</option>
+                <option value="high" style="color: #ff4d4d;">🔴 PRIORIDADE ALTA</option>
+            </select>
 
-            <ul id="task-list" style="list-style:none"></ul>
+            <label style="font-size: 0.8rem; color: var(--primary); font-weight: 800; margin-bottom: 5px; display: block;">PRAZO FINAL:</label>
+            <input type="datetime-local" id="task-deadline">
+            
+            <button id="add-btn" onclick="addTask()">Adicionar Tarefa</button>
         </div>
+
+        <ul id="task-list" style="list-style:none"></ul>
     </div>
 
-    <div class="status-footer" id="status-footer" style="display:none">
-        <div><i class="fa-regular fa-calendar"></i> <span id="current-date">--/--/-- --:--</span></div>
-        <div><i class="fa-regular fa-clock"></i> <span id="session-timer">00:00</span></div>
+    <div class="status-footer" id="status-footer">
+        <span><i class="fa-solid fa-calendar-day"></i> <span id="current-date"></span></span>
+        <span><i class="fa-solid fa-stopwatch"></i> <span id="session-timer">00:00</span></span>
     </div>
 
     <script>
-        // Lógica de Login e Transição
-        function startApp() {
-            const name = document.getElementById('user-name').value;
-            if(!name) return alert("Por favor, digite seu nome.");
-            
-            document.getElementById('login-overlay').style.opacity = '0';
-            document.getElementById('login-overlay').style.visibility = 'hidden';
-            document.getElementById('main-content').style.display = 'flex';
-            document.getElementById('status-footer').style.display = 'flex';
-            document.getElementById('welcome-msg').innerText = `Workplace de ${name}`;
-            playSound(600, 'sine');
-            startSessionTimer();
-        }
-
-        // Relógio e Cronômetro
-        function updateDateTime() {
-            const now = new Date();
-            document.getElementById('current-date').innerText = now.toLocaleString('pt-BR');
-        }
-        setInterval(updateDateTime, 1000);
-
-        let seconds = 0;
-        function startSessionTimer() {
-            setInterval(() => {
-                seconds++;
-                const min = Math.floor(seconds / 60).toString().padStart(2, '0');
-                const sec = (seconds % 60).toString().padStart(2, '0');
-                document.getElementById('session-timer').innerText = `${min}:${sec}`;
-            }, 1000);
-        }
-
-        // Funções de Áudio (Sintetizado)
-        function playSound(f, t) {
+        // Funções de som e transição (as mesmas da versão anterior, otimizadas)
+        function playSound(freq, type) {
             const ctx = new AudioContext();
             const o = ctx.createOscillator();
             const g = ctx.createGain();
-            o.type = t; o.frequency.value = f;
-            g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+            o.type = type; o.frequency.value = freq;
+            g.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.5);
             o.connect(g); g.connect(ctx.destination);
             o.start(); o.stop(ctx.currentTime + 0.5);
         }
 
-        // Gerenciamento de Tarefas
-        function addTask() {
-            const task = document.getElementById('task-input').value;
-            const priority = document.getElementById('priority-select').value;
-            const deadline = document.getElementById('task-deadline').value;
-
-            if(!task) return playSound(100, 'sawtooth');
-
-            const li = document.createElement('li');
-            li.className = `task-item p-${priority}`;
-            
-            // Formatação de Prazo
-            const deadlineText = deadline ? `Prazo: ${new Date(deadline).toLocaleString('pt-BR')}` : "Sem prazo definido";
-
-            li.innerHTML = `
-                <div class="task-content">
-                    <strong>${task}</strong>
-                    <span class="task-deadline">${deadlineText}</span>
-                </div>
-                <button class="btn-icon" onclick="completeTask(this)" style="color:var(--low); background:none; border:none; cursor:pointer; font-size:1.4rem"><i class="fa-solid fa-check-circle"></i></button>
-                <button class="btn-icon" onclick="this.parentElement.remove()" style="color:var(--high); background:none; border:none; cursor:pointer; font-size:1.4rem"><i class="fa-solid fa-trash"></i></button>
-            `;
-
-            document.getElementById('task-list').prepend(li);
-            document.getElementById('task-input').value = '';
+        function startApp() {
+            const name = document.getElementById('user-name').value;
+            if(!name) return alert("Por favor, identifique-se.");
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('app-card').style.display = 'block';
+            document.getElementById('status-footer').style.display = 'flex';
+            document.getElementById('welcome-title').innerText = `Workspace: ${name}`;
+            startTimers();
             playSound(500, 'sine');
         }
 
-        function completeTask(btn) {
-            btn.parentElement.classList.toggle('completed');
-            playSound(800, 'sine');
+        function startTimers() {
+            setInterval(() => {
+                document.getElementById('current-date').innerText = new Date().toLocaleString('pt-BR');
+            }, 1000);
+
+            let sec = 0;
+            setInterval(() => {
+                sec++;
+                let m = Math.floor(sec/60).toString().padStart(2,'0');
+                let s = (sec%60).toString().padStart(2,'0');
+                document.getElementById('session-timer').innerText = `${m}:${s}`;
+            }, 1000);
+        }
+
+        function addTask() {
+            const input = document.getElementById('task-input');
+            const priority = document.getElementById('priority-select');
+            const deadline = document.getElementById('task-deadline');
+
+            if(!input.value) return playSound(150, 'square');
+
+            const li = document.createElement('li');
+            li.className = `task-item p-${priority.value}`;
+            const dateStr = deadline.value ? new Date(deadline.value).toLocaleString('pt-BR') : "Sem prazo";
+
+            li.innerHTML = `
+                <div style="flex:1">
+                    <div class="task-text">${input.value}</div>
+                    <div class="deadline-badge"><i class="fa-regular fa-clock"></i> ${dateStr}</div>
+                </div>
+                <button onclick="this.parentElement.style.opacity='0.4'; playSound(800,'sine')" style="background:none; border:none; color:#22c55e; cursor:pointer; font-size:1.5rem; margin-right:10px;"><i class="fa-solid fa-check-double"></i></button>
+                <button onclick="this.parentElement.remove(); playSound(200,'sawtooth')" style="background:none; border:none; color:#ff4d4d; cursor:pointer; font-size:1.5rem;"><i class="fa-solid fa-trash-can"></i></button>
+            `;
+
+            document.getElementById('task-list').prepend(li);
+            input.value = '';
+            playSound(400, 'sine');
         }
     </script>
 </body>
